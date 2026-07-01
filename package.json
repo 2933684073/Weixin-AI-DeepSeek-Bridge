@@ -1,0 +1,17 @@
+{
+  "name": "weixin-ai-deepseek",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DeepSeek chat bridge for Tencent Weixin OpenClaw AI plugin.",
+  "type": "commonjs",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "chat": "node src/cli.js",
+    "check": "node --check public/admin.js && node --check src/env.js && node --check src/config.js && node --check src/env-store.js && node --check src/admin-utils.js && node --check src/admin-api.js && node --check src/deepseek-client.js && node --check src/conversation-store.js && node --check src/server.js && node --check src/cli.js"
+  },
+  "engines": {
+    "node": ">=16.14"
+  },
+  "license": "UNLICENSED"
+}

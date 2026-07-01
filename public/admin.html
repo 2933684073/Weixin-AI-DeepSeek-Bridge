@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>薛泽控制台</title>
+    <link rel="stylesheet" href="/admin/admin.css" />
+  </head>
+  <body>
+    <div class="login" id="login">
+      <div class="login-box">
+        <h2>薛泽控制台</h2>
+        <p>输入后台管理 token。默认使用服务器 .env 里的 ADMIN_TOKEN；没有设置时兼容 OPENCLAW_PROXY_KEY。</p>
+        <div class="field"><label for="loginToken">管理 Token</label><input id="loginToken" type="password" autocomplete="current-password" /></div>
+        <div class="toolbar"><button class="button primary" id="loginButton">进入后台</button></div>
+      </div>
+    </div>
+
+    <div class="shell">
+      <aside>
+        <div class="brand"><h1>薛泽控制台</h1><p>微信 AI 助手管理后台</p></div>
+        <nav id="nav">
+          <button class="nav-button active" data-tab="overview">总览<span>01</span></button>
+          <button class="nav-button" data-tab="model">模型<span>02</span></button>
+          <button class="nav-button" data-tab="persona">人设<span>03</span></button>
+          <button class="nav-button" data-tab="skills">技能<span>04</span></button>
+          <button class="nav-button" data-tab="openclaw">OpenClaw<span>05</span></button>
+          <button class="nav-button" data-tab="services">服务日志<span>06</span></button>
+        </nav>
+        <div class="side-foot">/admin 用于服务器管理。公网开放前请使用强 ADMIN_TOKEN 和 HTTPS。</div>
+      </aside>
+
+      <main>
+        <header>
+          <div class="top-title"><h2 id="pageTitle">总览</h2><span id="pageSubtitle">系统状态与快速操作</span></div>
+          <div class="top-actions"><span class="pill" id="statusPill">未连接</span><button class="button" id="refreshButton">刷新</button><button class="button" id="logoutButton">退出</button></div>
+        </header>
+
+        <div class="content">
+          <section class="section active" id="tab-overview">
+            <div class="grid">
+              <div class="card span-3 metric"><span>桥接模型</span><strong id="metricModel">-</strong><span id="metricBase">-</span></div>
+              <div class="card span-3 metric"><span>DeepSeek Key</span><strong id="metricKey">-</strong><span>仅显示脱敏值</span></div>
+              <div class="card span-3 metric"><span>OpenClaw</span><strong id="metricOpenClaw">-</strong><span id="metricOpenClawPath">-</span></div>
+              <div class="card span-3 metric"><span>运行时长</span><strong id="metricUptime">-</strong><span>当前 Node 进程</span></div>
+              <div class="card span-8">
+                <h3>快速测试</h3>
+                <div class="field"><label for="testMessage">发送给 DeepSeek 的测试消息</label><input id="testMessage" value="请只回复：后台测试成功" /></div>
+                <div class="toolbar"><button class="button primary" id="testButton">测试对话</button><button class="button" data-service="openclaw-gateway" data-action="restart">重启 OpenClaw</button><button class="button" data-service="weixin-ai-deepseek" data-action="restart">重启桥接服务</button></div>
+              </div>
+              <div class="card span-4"><h3>服务状态</h3><table class="table"><tbody id="serviceMiniTable"></tbody></table></div>
+              <div class="card span-12"><h3>测试输出</h3><pre id="testOutput">等待操作</pre></div>
+            </div>
+          </section>
+
+          <section class="section" id="tab-model">
+            <div class="grid">
+              <div class="card span-7">
+                <h3>桥接服务模型配置</h3>
+                <div class="grid compact-grid">
+                  <div class="span-6 field"><label for="modelSelect">模型</label><select id="modelSelect"><option value="deepseek-v4-pro">deepseek-v4-pro</option><option value="deepseek-v4-flash">deepseek-v4-flash</option><option value="custom">自定义</option></select></div>
+                  <div class="span-6 field"><label for="customModel">自定义模型</label><input id="customModel" placeholder="deepseek-v4-pro" /></div>
+                  <div class="span-6 field"><label for="baseUrl">Base URL</label><input id="baseUrl" /></div>
+                  <div class="span-6 field"><label for="chatPath">Chat Path</label><input id="chatPath" /></div>
+                  <div class="span-4 field"><label for="temperature">Temperature</label><input id="temperature" type="number" step="0.1" min="0" max="2" /></div>
+                  <div class="span-4 field"><label for="maxTokens">Max Tokens</label><input id="maxTokens" type="number" min="1" /></div>
+                  <div class="span-4 field"><label for="timeoutMs">Timeout ms</label><input id="timeoutMs" type="number" min="1000" /></div>
+                </div>
+                <div class="toolbar"><button class="button primary" id="saveModelButton">保存模型配置</button></div>
+              </div>
+              <div class="card span-5">
+                <h3>密钥与后台入口</h3>
+                <div class="field"><label for="deepseekKey">DeepSeek API Key</label><input id="deepseekKey" type="password" placeholder="留空则不修改" /></div>
+                <div class="field"><label for="proxyKey">OpenAI 兼容接口 Key</label><input id="proxyKey" type="password" placeholder="留空则不修改" /></div>
+                <div class="field"><label for="adminToken">后台 ADMIN_TOKEN</label><input id="adminToken" type="password" placeholder="留空则不修改" /></div>
+                <div class="field"><label for="openclawHome">OPENCLAW_HOME</label><input id="openclawHome" placeholder="/root/.openclaw" /></div>
+                <div class="toolbar"><button class="button green" id="saveSecretButton">保存安全配置</button></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" id="tab-persona"><div class="split"><div class="card"><h3>人设文件</h3><div class="list" id="personaList"></div></div><div class="card"><h3 id="personaTitle">选择文件</h3><textarea id="personaEditor"></textarea><div class="toolbar"><button class="button primary" id="savePersonaButton">保存人设</button></div></div></div></section>
+
+          <section class="section" id="tab-skills">
+            <div class="split"><div class="card"><h3>技能列表</h3><div class="toolbar"><button class="button" id="newSkillButton">新建技能</button><button class="button" id="reloadSkillsButton">刷新</button></div><div class="list" id="skillList"></div></div><div class="card"><h3 id="skillTitle">技能编辑</h3><div class="field"><label for="skillName">技能目录名</label><input id="skillName" placeholder="my-skill" /></div><textarea id="skillEditor" placeholder="---\nname: my-skill\ndescription: ...\n---\n\n# My Skill"></textarea><div class="toolbar"><button class="button primary" id="saveSkillButton">保存技能</button><button class="button" id="toggleSkillButton">启用/停用</button><button class="button red" id="deleteSkillButton">删除</button></div></div></div>
+            <div class="card"><h3>OpenClaw 技能命令</h3><div class="toolbar"><select id="skillsCommand"><option value="list">list</option><option value="search">search</option><option value="verify">verify</option><option value="install">install</option></select><input id="skillsCommandValue" placeholder="关键词或 @owner/skill" class="wide-input" /><button class="button" id="runSkillsCommandButton">运行</button></div><pre id="skillsCommandOutput">等待操作</pre></div>
+          </section>
+
+          <section class="section" id="tab-openclaw"><div class="grid"><div class="card span-5"><h3>OpenClaw 模型字段</h3><div class="field"><label for="openclawModelPath">检测到的字段</label><select id="openclawModelPath"></select></div><div class="field"><label for="openclawModelValue">模型值</label><input id="openclawModelValue" placeholder="deepseek/deepseek-v4-pro" /></div><div class="toolbar"><button class="button primary" id="saveOpenClawModelButton">更新模型字段</button></div><p class="hint">保存后重启 openclaw-gateway 生效。</p></div><div class="card span-7"><h3>OpenClaw JSON</h3><textarea id="openclawRaw" class="raw-editor"></textarea><div class="toolbar"><button class="button" id="loadOpenClawConfigButton">读取配置</button><button class="button primary" id="saveOpenClawConfigButton">保存 JSON</button></div></div></div></section>
+
+          <section class="section" id="tab-services"><div class="grid"><div class="card span-5"><h3>服务控制</h3><table class="table"><tbody id="serviceTable"></tbody></table></div><div class="card span-7"><h3>日志</h3><div class="toolbar"><select id="logService"><option value="openclaw-gateway">openclaw-gateway</option><option value="weixin-ai-deepseek">weixin-ai-deepseek</option></select><button class="button" id="loadLogsButton">读取日志</button></div><pre id="logOutput">等待操作</pre></div></div></section>
+        </div>
+      </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="/admin/admin.js"></script>
+  </body>
+</html>
